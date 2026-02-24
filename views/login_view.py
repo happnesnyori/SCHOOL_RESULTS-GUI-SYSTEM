@@ -1,5 +1,5 @@
 """
-views/login_view.py - Secure login screen with registration
+views/login_view.py - Secure login screen with registration and welcome page
 """
 import tkinter as tk
 from tkinter import ttk
@@ -14,50 +14,85 @@ class LoginView(tk.Toplevel):
         super().__init__(master)
         self.on_login_success = on_login_success
         self.title("Login — " + APP_TITLE)
-        self.resizable(False, False)
+        self.resizable(True, True)
         self.configure(bg=COLORS["bg_dark"])
         self.protocol("WM_DELETE_WINDOW", self.master.destroy)
-        center_window(self, 440, 580)
+        
+        # Set a larger window size and allow resizing
+        self.geometry("600x700")
+        self.minsize(500, 600)
+        center_window(self, 600, 700)
+        
         self._build()
         self.grab_set()
 
     def _build(self):
         bg = COLORS["bg_dark"]
-        card_bg = COLORS["card"]
-        # Outer padding
-        outer = tk.Frame(self, bg=bg, padx=40, pady=30)
+        
+        # Create a canvas with scrollbar for scrolling support
+        self.canvas = tk.Canvas(self, bg=bg, highlightthickness=0)
+        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = tk.Frame(self.canvas, bg=bg)
+        
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        )
+        
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+        
+        # Pack scrollbar and canvas
+        self.scrollbar.pack(side="right", fill="y")
+        self.canvas.pack(side="left", fill="both", expand=True)
+        
+        # Use scrollable_frame as the main container
+        outer = tk.Frame(self.scrollable_frame, bg=bg, padx=50, pady=30)
         outer.pack(fill="both", expand=True)
 
         # Logo / title area
-        tk.Label(outer, text="🎓", font=("Segoe UI Emoji", 42), bg=bg,
-                 fg=COLORS["primary_light"]).pack(pady=(0, 8))
-        tk.Label(outer, text="School Results System",
+        tk.Label(outer, text="🎓", font=("Segoe UI Emoji", 52), bg=bg,
+                 fg=COLORS["primary_light"]).pack(pady=(20, 10))
+        tk.Label(outer, text="School Examination Results",
                  font=FONTS["heading"], bg=bg, fg=COLORS["white"]).pack()
-        tk.Label(outer, text="Sign in to your account",
-                 font=FONTS["small"], bg=bg, fg=COLORS["text_secondary"]).pack(pady=(4, 24))
+        tk.Label(outer, text="Management System",
+                 font=FONTS["subheading"], bg=bg, fg=COLORS["text_secondary"]).pack()
+        
+        # System info
+        info_frame = tk.Frame(outer, bg=COLORS["card"], padx=20, pady=15,
+                            highlightbackground=COLORS["border"], highlightthickness=1)
+        info_frame.pack(fill="x", pady=20)
+        
+        tk.Label(info_frame, text="Welcome to S.E.R.M.S",
+                 font=FONTS["body_bold"], bg=COLORS["card"],
+                 fg=COLORS["primary"]).pack(anchor="w")
+        tk.Label(info_frame, 
+                 text="• Manage student results efficiently\n• Track academic performance\n• Generate detailed reports\n• Multi-user access (Admin, Teacher, Student)",
+                 font=FONTS["small"], bg=COLORS["card"],
+                 fg=COLORS["text_secondary"], justify="left").pack(anchor="w", pady=(5, 0))
 
         # Notebook for Login/Register tabs
         self.notebook = ttk.Notebook(outer)
-        self.notebook.pack(fill="both", expand=True)
+        self.notebook.pack(fill="both", expand=True, pady=10)
         
         # Login tab
-        self.login_frame = tk.Frame(self.notebook, bg=card_bg, padx=30, pady=20)
+        self.login_frame = tk.Frame(self.notebook, bg=COLORS["card"], padx=25, pady=20)
         self.notebook.add(self.login_frame, text="  Login  ")
         self._build_login_tab()
         
         # Teacher Registration tab
-        self.teacher_reg_frame = tk.Frame(self.notebook, bg=card_bg, padx=30, pady=20)
+        self.teacher_reg_frame = tk.Frame(self.notebook, bg=COLORS["card"], padx=25, pady=20)
         self.notebook.add(self.teacher_reg_frame, text="  Register as Teacher  ")
         self._build_teacher_reg_tab()
         
         # Student Registration tab
-        self.student_reg_frame = tk.Frame(self.notebook, bg=card_bg, padx=30, pady=20)
+        self.student_reg_frame = tk.Frame(self.notebook, bg=COLORS["card"], padx=25, pady=20)
         self.notebook.add(self.student_reg_frame, text="  Register as Student  ")
         self._build_student_reg_tab()
 
         # Footer hint
         tk.Label(outer, text="Default admin: admin@school.edu / Admin@1234",
-                 font=FONTS["small"], bg=bg, fg=COLORS["text_secondary"]).pack(pady=(16, 0))
+                 font=FONTS["small"], bg=bg, fg=COLORS["text_secondary"]).pack(pady=(10, 20))
 
     def _build_login_tab(self):
         card = self.login_frame
@@ -99,7 +134,7 @@ class LoginView(tk.Toplevel):
             card, text="Sign In", font=FONTS["body_bold"],
             bg=COLORS["primary"], fg=COLORS["white"],
             activebackground=COLORS["primary_light"], activeforeground=COLORS["white"],
-            relief="flat", cursor="hand2", pady=8,
+            relief="flat", cursor="hand2", pady=10,
             command=self._do_login,
         )
         login_btn.pack(fill="x")
@@ -159,7 +194,7 @@ class LoginView(tk.Toplevel):
             card, text="Register as Teacher", font=FONTS["body_bold"],
             bg=COLORS["success"], fg=COLORS["white"],
             activebackground=COLORS["primary_light"], activeforeground=COLORS["white"],
-            relief="flat", cursor="hand2", pady=8,
+            relief="flat", cursor="hand2", pady=10,
             command=self._do_teacher_register,
         )
         register_btn.pack(fill="x")
@@ -222,7 +257,7 @@ class LoginView(tk.Toplevel):
             card, text="Register as Student", font=FONTS["body_bold"],
             bg=COLORS["success"], fg=COLORS["white"],
             activebackground=COLORS["primary_light"], activeforeground=COLORS["white"],
-            relief="flat", cursor="hand2", pady=8,
+            relief="flat", cursor="hand2", pady=10,
             command=self._do_student_register,
         )
         register_btn.pack(fill="x")

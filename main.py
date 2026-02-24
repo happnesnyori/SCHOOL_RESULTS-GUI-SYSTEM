@@ -24,6 +24,8 @@ class Application(tk.Tk):
         self.geometry(WINDOW_SIZE)
         self.configure(bg=COLORS["bg_medium"])
         self.minsize(1024, 680)
+        # Enable resizing
+        self.resizable(True, True)
         center_window(self, 1280, 780)
 
         # Apply global ttk styles
