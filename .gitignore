@@ -1,0 +1,19 @@
+# -----------------------------
+# Python
+# -----------------------------
+__pycache__/
+*pyc
+
+# Virtual Environment
+venv/
+.venv/
+
+# Environment Variables
+.env
+
+# VS Code
+.vscode/
+
+# Log files
+*.log
+school_results.log
