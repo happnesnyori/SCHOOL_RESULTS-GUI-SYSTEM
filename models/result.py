@@ -21,8 +21,9 @@ class Result(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     __table_args__ = (
-        UniqueConstraint("student_id", "subject_id", name="uq_student_subject"),
-    )
+    UniqueConstraint("student_id", "subject_id", name="uq_student_subject"),
+    {"mysql_engine": "InnoDB"},
+)
 
     # Relationships
     student = relationship("Student", back_populates="results")
