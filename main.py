@@ -39,7 +39,7 @@ class Application(tk.Tk):
             messagebox.showerror(
                 "Database Error",
                 f"Could not connect to the database.\n\n{e}\n\n"
-                "Please check your .env file and ensure PostgreSQL is running."
+                "Please check your .env file and ensure MySQL is running."
             )
             self.destroy()
             sys.exit(1)
