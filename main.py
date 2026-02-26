@@ -77,7 +77,10 @@ class Application(tk.Tk):
                 widget.destroy()
         self.withdraw()
         from views.login_view import LoginView
-        self._current_login_window = LoginView(self, on_login_success=self._authenticate)
+        self._current_login_window = LoginView(
+            self, on_login_success=self._authenticate,
+            on_back_home=self._show_home
+        )
 
     def _show_register(self):
         """Show the registration page"""
@@ -88,8 +91,10 @@ class Application(tk.Tk):
         self.withdraw()
         from views.login_view import LoginView
         # Create LoginView and show the welcome card with registration options
-        self._current_login_window = LoginView(self, on_login_success=self._authenticate)
-
+        self._current_login_window = LoginView(
+            self, on_login_success=self._authenticate,
+            on_back_home=self._show_home
+        )
     def _authenticate(self, email: str, password: str, admission_number: str = None):
         db = SessionLocal()
         try:

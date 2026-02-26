@@ -10,13 +10,15 @@ from services.student_service import StudentService
 
 
 class LoginView(tk.Toplevel):
-    def __init__(self, master, on_login_success):
+    def __init__(self, master, on_login_success, on_back_home=None):
         super().__init__(master)
         self.on_login_success = on_login_success
+        self.on_back_home = on_back_home
         self.title("Sign In — " + APP_TITLE)
         self.resizable(True, True)
         self.configure(bg=COLORS["bg_dark"])
-        self.protocol("WM_DELETE_WINDOW", self.master.destroy)
+        # handle window close by returning to home if callback exists
+        self.protocol("WM_DELETE_WINDOW", self._handle_close)
         self.geometry("520x680")
         self.minsize(460, 560)
         center_window(self, 520, 680)
@@ -24,6 +26,22 @@ class LoginView(tk.Toplevel):
         self.grab_set()
 
     # ── Scaffold ──────────────────────────────────────────────────────────────
+
+    def _build(self):
+        bg = COLORS["bg_dark"]
+
+        # window close handler helpers
+    
+    def _handle_close(self):
+        # when the user closes the window, navigate back to home if possible
+        if self.on_back_home:
+            self.on_back_home()
+        else:
+            self.master.destroy()
+
+    def _go_home(self):
+        if self.on_back_home:
+            self.on_back_home()
 
     def _build(self):
         bg = COLORS["bg_dark"]
@@ -38,6 +56,20 @@ class LoginView(tk.Toplevel):
         # ── Fixed logo section ───────────────────────────────────────────────
         self._logo_frame = tk.Frame(self.outer, bg=bg)
         self._logo_frame.pack(fill="x")
+
+        # optional home button
+        if self.on_back_home:
+            home_btn = tk.Button(
+                self._logo_frame,
+                text="🏠 Home",
+                font=FONTS["small"],
+                bg=bg,
+                fg=COLORS["text_secondary"],
+                relief="flat",
+                cursor="hand2",
+                command=self._go_home
+            )
+            home_btn.pack(side="right", padx=(0, 4))
 
         tk.Label(self._logo_frame, text="\U0001f393",
                  font=("Segoe UI Emoji", 44),
