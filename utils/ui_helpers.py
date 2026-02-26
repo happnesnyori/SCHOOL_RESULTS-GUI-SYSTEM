@@ -10,6 +10,13 @@ def apply_treeview_style(style: ttk.Style):
     """Apply dark theme styles to ttk widgets."""
     style.theme_use("clam")
 
+    # ── Progressbar ──────────────────────────────────────────────────────────
+    style.configure("TProgressbar",
+                    troughcolor=COLORS["bg_light"],
+                    background=COLORS["primary_light"],
+                    borderwidth=0, thickness=6)
+
+
     # Treeview
     style.configure(
         "Custom.Treeview",
@@ -222,3 +229,75 @@ def center_window(win, width, height):
     x = (win.winfo_screenwidth() // 2) - (width // 2)
     y = (win.winfo_screenheight() // 2) - (height // 2)
     win.geometry(f"{width}x{height}+{x}+{y}")
+
+
+# ── New UI Component Helpers ──────────────────────────────────────────────────
+
+def make_stat_card(parent, icon: str, value, label: str, color: str):
+    """Create a polished stat card. Grid it yourself with .grid(). Returns the frame."""
+    card = tk.Frame(parent, bg=color, padx=22, pady=18)
+    row = tk.Frame(card, bg=color)
+    row.pack(fill="x")
+    tk.Label(row, text=icon, font=("Segoe UI Emoji", 20),
+             bg=color, fg="white").pack(side="left")
+    tk.Label(row, text=str(value), font=("Segoe UI", 26, "bold"),
+             bg=color, fg="white").pack(side="right")
+    tk.Frame(card, bg="white", height=1).pack(fill="x", pady=(8, 6))
+    tk.Label(card, text=label, font=("Segoe UI", 9),
+             bg=color, fg="#dde8ff", anchor="w").pack(anchor="w")
+    return card
+
+
+def make_card(parent, padx: int = 20, pady: int = 16, bg: str = None, border: bool = True):
+    """Return a styled card Frame (doesn't pack — caller does layout)."""
+    bg = bg or COLORS["card"]
+    kwargs = dict(bg=bg, padx=padx, pady=pady)
+    if border:
+        kwargs.update(highlightbackground=COLORS["border"], highlightthickness=1)
+    return tk.Frame(parent, **kwargs)
+
+
+def bind_hover(widget, normal_bg: str, hover_bg: str,
+               normal_fg: str = None, hover_fg: str = None):
+    """Attach mouse-enter/leave color effects to any widget."""
+    def _enter(e):
+        widget.configure(bg=hover_bg)
+        if hover_fg:
+            widget.configure(fg=hover_fg)
+    def _leave(e):
+        widget.configure(bg=normal_bg)
+        if normal_fg:
+            widget.configure(fg=normal_fg)
+    widget.bind("<Enter>", _enter)
+    widget.bind("<Leave>", _leave)
+    return widget
+
+
+def make_section_header(parent, title: str, subtitle: str = None,
+                        bg: str = None, padx: int = 20, pady: int = 16):
+    """Build a titled section header row inside *parent* (packs itself)."""
+    bg = bg or COLORS["bg_medium"]
+    hdr = tk.Frame(parent, bg=bg)
+    hdr.pack(fill="x", padx=padx, pady=(pady, 0))
+    tk.Label(hdr, text=title, font=FONTS["subheading"],
+             bg=bg, fg=COLORS["text_primary"]).pack(anchor="w")
+    if subtitle:
+        tk.Label(hdr, text=subtitle, font=FONTS["small"],
+                 bg=bg, fg=COLORS["text_secondary"]).pack(anchor="w", pady=(2, 0))
+    return hdr
+
+
+def make_divider(parent, bg: str = None, padx: int = 0, pady: int = 8):
+    """Insert a 1-px horizontal divider line."""
+    tk.Frame(parent, bg=bg or COLORS["border"], height=1).pack(
+        fill="x", padx=padx, pady=pady)
+
+
+def make_top_accent_card(parent, color: str, padx: int = 16, pady: int = 14):
+    """Card with a 4-px coloured top-border accent. Returns inner content frame."""
+    outer = tk.Frame(parent, bg=color)
+    inner = tk.Frame(outer, bg=COLORS["card"], padx=padx, pady=pady,
+                     highlightbackground=COLORS["border"], highlightthickness=1)
+    tk.Frame(outer, bg=color, height=4).pack(fill="x")
+    inner.pack(fill="both", expand=True)
+    return outer, inner

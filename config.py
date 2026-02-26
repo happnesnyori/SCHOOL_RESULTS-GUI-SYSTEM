@@ -78,12 +78,37 @@ COLORS = {
 }
 
 FONTS = {
-    "heading":  ("Segoe UI", 18, "bold"),
+    "heading":    ("Segoe UI", 18, "bold"),
     "subheading": ("Segoe UI", 13, "bold"),
-    "body":     ("Segoe UI", 10),
-    "body_bold": ("Segoe UI", 10, "bold"),
-    "small":    ("Segoe UI", 9),
-    "mono":     ("Courier New", 10),
+    "body":       ("Segoe UI", 10),
+    "body_bold":  ("Segoe UI", 10, "bold"),
+    "small":      ("Segoe UI", 9),
+    "small_bold": ("Segoe UI", 9, "bold"),
+    "mono":       ("Courier New", 10),
+    "tag":        ("Segoe UI", 8, "bold"),
+    "display":    ("Segoe UI", 22, "bold"),
+}
+
+# Role-based accent colors
+ROLE_COLORS = {
+    "ADMIN":   COLORS["primary"],
+    "TEACHER": COLORS["secondary"],
+    "STUDENT": COLORS["success"],
+}
+
+# Sidebar navigation icons
+NAV_ICONS = {
+    "Dashboard":            "\U0001f4ca",
+    "Students":             "\U0001f465",
+    "Teachers":             "\U0001f9d1\u200d\U0001f3eb",
+    "Classes & Subjects":   "\U0001f4da",
+    "Results":              "\U0001f4dd",
+    "Analytics":            "\U0001f4c8",
+    "Reports":              "\U0001f4c4",
+    "My Results":           "\U0001f4cb",
+    "My Profile":           "\U0001f464",
+    "My Subjects & Marks":  "\u270f\ufe0f",
+    "My Class Performance": "\U0001f4c8",
 }
 
 

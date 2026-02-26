@@ -49,53 +49,70 @@ class AdminDashboard(BaseDashboard):
         self.update_section_title("Dashboard Overview")
         f = self.get_content_frame()
         stats = self.analytics_svc.total_stats()
-        header = tk.Frame(f, bg=COLORS["bg_medium"], pady=16)
-        header.pack(fill="x", padx=20)
-        tk.Label(header, text=f"Welcome, {self.user.full_name}",
+        from utils.ui_helpers import make_stat_card, make_divider, bind_hover
+
+        # ── Welcome header ───────────────────────────────────────────────────
+        header = tk.Frame(f, bg=COLORS["bg_medium"], pady=20)
+        header.pack(fill="x", padx=24)
+        tk.Label(header, text=f"Welcome back, {self.user.full_name} \U0001f44b",
                  font=FONTS["heading"], bg=COLORS["bg_medium"],
                  fg=COLORS["white"]).pack(anchor="w")
-        tk.Label(header, text="School Examination Results Management System",
+        tk.Label(header,
+                 text="Here's an overview of your school's examination results.",
                  font=FONTS["body"], bg=COLORS["bg_medium"],
-                 fg=COLORS["text_secondary"]).pack(anchor="w")
+                 fg=COLORS["text_secondary"]).pack(anchor="w", pady=(4, 0))
 
+        make_divider(f, padx=24, pady=(0, 4))
+
+        # ── Stat cards ───────────────────────────────────────────────────────
         cards_row = tk.Frame(f, bg=COLORS["bg_medium"])
-        cards_row.pack(fill="x", padx=20, pady=12)
-        stat_items = [
-            ("Total Students", stats["total_students"], COLORS["primary"]),
-            ("Total Results",  stats["total_results"],  COLORS["secondary"]),
-            ("Average Score",  f"{stats['avg_marks']}%", COLORS["success"]),
-        ]
-        for i, (label, val, color) in enumerate(stat_items):
-            card = tk.Frame(cards_row, bg=color, padx=28, pady=22)
-            card.grid(row=0, column=i, padx=10, sticky="ew")
-            cards_row.columnconfigure(i, weight=1)
-            tk.Label(card, text=str(val), font=("Segoe UI", 32, "bold"),
-                     bg=color, fg="white").pack()
-            tk.Label(card, text=label, font=FONTS["body"],
-                     bg=color, fg="#d0d8ff").pack()
+        cards_row.pack(fill="x", padx=24, pady=16)
 
-        # Quick nav
+        stat_items = [
+            ("\U0001f465", stats["total_students"], "Total Students",  COLORS["primary"]),
+            ("\U0001f4dd", stats["total_results"],  "Total Results",   COLORS["secondary"]),
+            ("\u2b50",     f"{stats['avg_marks']}%", "Average Score",  COLORS["success"]),
+        ]
+        for i, (icon, val, label, color) in enumerate(stat_items):
+            card = make_stat_card(cards_row, icon, val, label, color)
+            card.grid(row=0, column=i, padx=8, sticky="ew")
+            cards_row.columnconfigure(i, weight=1)
+
+        make_divider(f, padx=24, pady=(4, 0))
+
+        # ── Quick actions ────────────────────────────────────────────────────
         quick = tk.Frame(f, bg=COLORS["bg_medium"])
-        quick.pack(fill="x", padx=20, pady=8)
+        quick.pack(fill="x", padx=24, pady=16)
         tk.Label(quick, text="Quick Actions", font=FONTS["subheading"],
-                 bg=COLORS["bg_medium"], fg=COLORS["text_primary"]).pack(anchor="w", pady=(0, 8))
+                 bg=COLORS["bg_medium"], fg=COLORS["text_primary"]).pack(anchor="w", pady=(0, 12))
 
         btn_row = tk.Frame(quick, bg=COLORS["bg_medium"])
         btn_row.pack(fill="x")
-        for i, (text, section, callback) in enumerate([
-            ("Manage Students",  "Students",          self._show_students),
-            ("Enter Marks",      "Results",            self._show_results),
-            ("View Analytics",   "Analytics",          self._show_analytics),
-            ("Generate Reports", "Reports",            self._show_reports),
-        ]):
-            tk.Button(btn_row, text=text, font=FONTS["body_bold"],
-                      bg=COLORS["card"], fg=COLORS["text_primary"],
-                      activebackground=COLORS["hover"], relief="flat",
-                      cursor="hand2", padx=20, pady=16,
-                      command=lambda s=section, cb=callback: self._nav_click(s, cb),
-                      highlightbackground=COLORS["border"], highlightthickness=1,
-                      ).grid(row=0, column=i, padx=6, sticky="ew")
+
+        actions = [
+            ("\U0001f465", "Manage Students",  "Students",  self._show_students,  COLORS["primary"]),
+            ("\U0001f4dd", "Enter Marks",       "Results",   self._show_results,   COLORS["secondary"]),
+            ("\U0001f4c8", "View Analytics",    "Analytics", self._show_analytics, COLORS["accent"]),
+            ("\U0001f4c4", "Generate Reports",  "Reports",   self._show_reports,   COLORS["success"]),
+        ]
+        for i, (icon, text, section, callback, color) in enumerate(actions):
+            btn = tk.Button(
+                btn_row,
+                text=f"{icon}\n{text}",
+                font=FONTS["body_bold"],
+                bg=COLORS["card"], fg=color,
+                activebackground=COLORS["hover"],
+                activeforeground=COLORS["white"],
+                relief="flat", cursor="hand2",
+                padx=20, pady=20,
+                justify="center",
+                highlightbackground=color, highlightthickness=1,
+                command=lambda s=section, cb=callback: self._nav_click(s, cb),
+            )
+            btn.grid(row=0, column=i, padx=6, sticky="ew")
             btn_row.columnconfigure(i, weight=1)
+            bind_hover(btn, COLORS["card"], COLORS["hover"],
+                       normal_fg=color, hover_fg=COLORS["white"])
 
     def _show_students(self):
         self.update_section_title("Student Management")
