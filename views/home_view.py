@@ -35,22 +35,52 @@ class HomePage(tk.Toplevel):
     def _build(self):
         """Build the home page UI"""
         bg = COLORS["bg_dark"]
-        
         # Main container with padding
         main_container = tk.Frame(self, bg=bg)
-        main_container.pack(fill="both", expand=True, padx=40, pady=40)
+        main_container.pack(fill="both", expand=True, padx=24, pady=24)
 
-        # ── Header Section ────────────────────────────────────────────────────
-        self._build_header(main_container, bg)
+        # Build header and top actions (kept visible at top)
+        header_container = tk.Frame(main_container, bg=bg)
+        header_container.pack(fill="x")
+        self._build_header(header_container, bg)
+        self._build_actions(header_container, bg)
 
-        # ── Content Section ───────────────────────────────────────────────────
-        self._build_content(main_container, bg)
+        # Create scrollable content area for the rest of the page
+        content_container = tk.Frame(main_container, bg=bg)
+        content_container.pack(fill="both", expand=True, pady=(12, 0))
 
-        # ── Action Buttons Section ────────────────────────────────────────────
-        self._build_actions(main_container, bg)
+        # Canvas + scrollbar
+        canvas = tk.Canvas(content_container, bg=bg, highlightthickness=0)
+        v_scroll = ttk.Scrollbar(content_container, orient="vertical", command=canvas.yview)
+        canvas.configure(yscrollcommand=v_scroll.set)
+        v_scroll.pack(side="right", fill="y")
+        canvas.pack(side="left", fill="both", expand=True)
 
-        # ── Footer Section ────────────────────────────────────────────────────
-        self._build_footer(main_container, bg)
+        # Inner frame that will hold the actual content
+        self._inner = tk.Frame(canvas, bg=bg)
+        window_id = canvas.create_window((0, 0), window=self._inner, anchor="nw")
+
+        # Populate scrollable content
+        self._build_content(self._inner, bg)
+        self._build_footer(self._inner, bg)
+
+        # Configure scrolling region
+        def _on_frame_config(event):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+
+        self._inner.bind("<Configure>", _on_frame_config)
+
+        # Make canvas width adapt to inner frame
+        def _on_canvas_config(event):
+            canvas.itemconfig(window_id, width=event.width)
+
+        canvas.bind("<Configure>", _on_canvas_config)
+
+        # Mousewheel support (Windows)
+        def _on_mousewheel(event):
+            canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+        canvas.bind_all("<MouseWheel>", _on_mousewheel)
 
     def _build_header(self, parent, bg):
         """Build header with logo and title"""

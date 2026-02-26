@@ -59,6 +59,10 @@ class Application(tk.Tk):
 
     def _show_home(self):
         """Show the welcoming home page"""
+        # Close any existing toplevel windows (e.g., login)
+        for widget in self.winfo_children():
+            if isinstance(widget, tk.Toplevel):
+                widget.destroy()
         self.withdraw()
         from views.home_view import HomePage
         HomePage(self, on_login_click=self._show_login, on_register_click=self._show_register)
@@ -67,12 +71,20 @@ class Application(tk.Tk):
 
     def _show_login(self):
         """Show the login page"""
+        # Close any existing toplevel windows and show login
+        for widget in self.winfo_children():
+            if isinstance(widget, tk.Toplevel):
+                widget.destroy()
         self.withdraw()
         from views.login_view import LoginView
         self._current_login_window = LoginView(self, on_login_success=self._authenticate)
 
     def _show_register(self):
         """Show the registration page"""
+        # Close any existing toplevel windows and show registration options
+        for widget in self.winfo_children():
+            if isinstance(widget, tk.Toplevel):
+                widget.destroy()
         self.withdraw()
         from views.login_view import LoginView
         # Create LoginView and show the welcome card with registration options
