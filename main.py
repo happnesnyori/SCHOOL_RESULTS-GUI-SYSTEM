@@ -52,15 +52,31 @@ class Application(tk.Tk):
             db.close()
 
         self._current_dashboard = None
-        self._show_login()
+        self._current_login_window = None
+        self._show_home()
+
+    # ── Home/Welcome flow ──────────────────────────────────────────────────────
+
+    def _show_home(self):
+        """Show the welcoming home page"""
+        self.withdraw()
+        from views.home_view import HomePage
+        HomePage(self, on_login_click=self._show_login, on_register_click=self._show_register)
 
     # ── Login flow ────────────────────────────────────────────────────────────
 
     def _show_login(self):
-        # Hide root window; show login Toplevel
+        """Show the login page"""
         self.withdraw()
         from views.login_view import LoginView
-        LoginView(self, on_login_success=self._authenticate)
+        self._current_login_window = LoginView(self, on_login_success=self._authenticate)
+
+    def _show_register(self):
+        """Show the registration page"""
+        self.withdraw()
+        from views.login_view import LoginView
+        # Create LoginView and show the welcome card with registration options
+        self._current_login_window = LoginView(self, on_login_success=self._authenticate)
 
     def _authenticate(self, email: str, password: str, admission_number: str = None):
         db = SessionLocal()
